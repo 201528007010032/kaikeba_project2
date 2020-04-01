@@ -13,8 +13,6 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
-# from tensorflow.keras.preprocessing.text import Tokenizer
-# from tensorflow.keras.preprocessing.sequence import pad_sequences
 from sklearn.preprocessing import MultiLabelBinarizer
 
 from utils.config import root
@@ -105,6 +103,7 @@ def data_loader(params, is_rebuild_dataset=False):
     mlb = MultiLabelBinarizer()
     df['label'] = df['label'].apply(lambda x: x.split())
     mlb.fit(df['label'])
+
     y = mlb.transform(df['label'])
 
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)

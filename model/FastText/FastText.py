@@ -15,7 +15,7 @@ class FastText(object):
         self.last_activation = last_activation
 
     def get_model(self):
-        inputs = tf.keras.Input((self.maxlen,))
+        inputs = tf.keras.Input((self.maxlen,), name='inputs')
         embedding = tf.keras.layers.Embedding(self.max_features, self.embedding_dims, input_length=self.maxlen)(inputs)
         x = tf.keras.layers.GlobalAveragePooling1D()(embedding)
         output = tf.keras.layers.Dense(self.class_num, activation=self.last_activation)(x)
@@ -81,6 +81,8 @@ def add_ngram_features(ngram_range, x_train, x_test, max_features):
         max_features = np.max(list(indice_token.keys())) + 1
 
         # Augmenting x_train and x_test with n-grams features
-        x_train = add_ngram(x_train.tolist(), token_indice, ngram_range)
-        x_test = add_ngram(x_test.tolist(), token_indice, ngram_range)
+        # x_train = add_ngram(x_train.tolist(), token_indice, ngram_range)
+        # x_test = add_ngram(x_test.tolist(), token_indice, ngram_range)
+        x_train = add_ngram(x_train, token_indice, ngram_range)
+        x_test = add_ngram(x_test, token_indice, ngram_range)
     return x_train, x_test, max_features

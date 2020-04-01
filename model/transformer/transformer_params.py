@@ -22,7 +22,7 @@ def get_params():
     parser.add_argument('--output_dim', default=95, type=int, help='Number of target classes.(default=18)')
     parser.add_argument('--regularizers_lambda', default=0.01, type=float,
                         help='L2 regulation parameter.(default=0.01)')
-    parser.add_argument('--batch_size', default=256, type=int, help='Mini-Batch size.(default=64)')
+    parser.add_argument('--batch_size', default=64, type=int, help='Mini-Batch size.(default=64)')
     parser.add_argument('--learning_rate', default=0.01, type=float, help='Learning rate.(default=0.005)')
     parser.add_argument('-input_vocab_size', default=50000, type=int, help='Limit vocab size.(default=50000)')
     parser.add_argument('-target_vocab_size', default=50000, type=int, help='Limit vocab size.(default=50000)')

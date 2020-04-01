@@ -22,7 +22,7 @@ def get_params():
     parser.add_argument('--epochs', default=10, type=int, help='Number of epochs.(default=10)')
     parser.add_argument('--results_dir', default=os.path.join(root, 'results/FastText'), type=str,
                         help='The results dir including log, model, vocabulary and some images.(default=./results/)')
-    parser.add_argument('--ngram_range', default=3, type=int, help='ngram range')
+    parser.add_argument('--ngram_range', default=1, type=int, help='ngram range')
 
     parser.add_argument('--workers', default=32, type=int, help='use worker count')
 

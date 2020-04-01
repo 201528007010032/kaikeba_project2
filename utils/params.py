@@ -10,8 +10,9 @@ def get_params():
     parser = argparse.ArgumentParser(description='This is the Multi-label text classification project.')
 
     # parser.add_argument('--model', default='FastText')
-    # parser.add_argument('--model', default='TextCNN')
-    parser.add_argument('--model', default='transformer')
+    parser.add_argument('--model', default='TextCNN')
+    # parser.add_argument('--model', default='gcn')
+    # parser.add_argument('--model', default='transformer')
 
     parser.add_argument('--test_sample_percentage', default=0.1, type=float,
                         help='The fraction of test data.(default=0.1)')

@@ -6,6 +6,7 @@ import os
 import tensorflow as tf
 from pprint import pprint
 
+from utils.config_gpu import config_gpu, config_gpu_growth
 from utils.data_helper import data_loader
 from utils.params import get_params
 from utils.metrics import micro_f1, macro_f1
@@ -20,6 +21,9 @@ from model.FastText.FastText import add_ngram_features
 from model.transformer.model import Transformer
 import model.transformer.transformer_params as transformer_params
 from model.transformer.train_helper import train_model
+
+import model.gcn.gcn_params as gcn_params
+import model.gcn.train_helper as gcn_train
 
 
 def train(x_train, x_test, y_train, y_test, params, model_params):
@@ -36,8 +40,11 @@ def train(x_train, x_test, y_train, y_test, params, model_params):
                             callbacks=[early_stopping],
                             validation_data=(x_test, y_test))
 
+        # model.reset_metrics()
         print("\nSaving model...")
-        tf.keras.models.save_model(model, model_params['save_path'])
+        # tf.keras.models.save_model(model, model_params['save_path'])
+        model.save(model_params['save_path'])
+        # model.save('./results/FastText/model.h5')
         pprint(history.history)
     elif params['model'] == 'transformer':
         train_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
@@ -60,15 +67,17 @@ def train(x_train, x_test, y_train, y_test, params, model_params):
 
 def build_model(params, model_params):
     if params['model'] == 'TextCNN':
-        model = TextCNN(max_sequence_length=model_params['padding_size'],
+        model = TextCNN(max_sequence_length=model_params['maxlen'],
                         max_token_num=model_params['vocab_size'],
                         embedding_dim=model_params['embedding_dim'],
                         output_dim=model_params['num_classes'],
                         kernel_sizes=model_params['filter_sizes'],
                         num_filters=model_params['num_filters'])
+        # model.compile(tf.optimizers.Adam(learning_rate=model_params['learning_rate']),
+        #               loss='binary_crossentropy',
+        #               metrics=[micro_f1, macro_f1])
         model.compile(tf.optimizers.Adam(learning_rate=model_params['learning_rate']),
-                      loss='binary_crossentropy',
-                      metrics=[micro_f1, macro_f1])
+                      loss='binary_crossentropy')
         model.summary()
     elif params['model'] == 'FastText':
         fasttext = FastText(model_params['maxlen'],
@@ -76,9 +85,11 @@ def build_model(params, model_params):
                             model_params['embedding_dim'],
                             model_params['num_classes'])
         model = fasttext.get_model()
+        # model.compile(tf.optimizers.Adam(learning_rate=model_params['learning_rate']),
+        #               loss='binary_crossentropy',
+        #               metrics=[micro_f1, macro_f1])
         model.compile(tf.optimizers.Adam(learning_rate=model_params['learning_rate']),
-                      loss='binary_crossentropy',
-                      metrics=[micro_f1, macro_f1])
+                      loss='binary_crossentropy')
         model.summary()
     elif params['model'] == 'transformer':
         model = Transformer(num_layers=model_params['num_layers'],
@@ -94,6 +105,8 @@ def build_model(params, model_params):
 
 
 if __name__ == '__main__':
+    config_gpu()
+
     params = get_params()
     if params['model'] == 'TextCNN':
         model_params = TextCNN_params.get_params()
@@ -101,14 +114,23 @@ if __name__ == '__main__':
         model_params = FastText_params.get_params()
     elif params['model'] == 'transformer':
         model_params = transformer_params.get_params()
+    elif params['model'] == 'gcn':
+        model_params = gcn_params.get_params()
+        gcn_train.train_model(model_params)
     else:
         pass
 
     x_train, x_test, y_train, y_test, vocab, mlb = data_loader(params, is_rebuild_dataset=False)
 
     if params['model'] == 'FastText':
+        x_train = [[i for i in x if i > 0] for x in x_train.tolist()]
+        x_test = [[i for i in x if i > 0] for x in x_test.tolist()]
         x_train, x_test, vocab_size = add_ngram_features(model_params['ngram_range'], x_train, x_test,
                                                          model_params['vocab_size'])
+        x_train = tf.keras.preprocessing.sequence.pad_sequences(x_train, maxlen=model_params['maxlen'], padding='post',
+                                                                truncating='post')
+        x_test = tf.keras.preprocessing.sequence.pad_sequences(x_test, maxlen=model_params['maxlen'], padding='post',
+                                                               truncating='post')
         model_params['vocab_size'] = vocab_size
 
     train(x_train, x_test, y_train, y_test, params, model_params)

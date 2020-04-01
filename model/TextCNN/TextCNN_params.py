@@ -11,7 +11,7 @@ def get_params():
 
     parser.add_argument('--model', default='TextCNN')
 
-    parser.add_argument('--padding_size', default=300, type=int, help='Padding size of sentences.(default=128)')
+    parser.add_argument('--maxlen', default=300, type=int, help='Padding size of sentences.(default=300)')
     parser.add_argument('--embedding_dim', default=512, type=int, help='Word embedding size.(default=512)')
     parser.add_argument('--filter_sizes', default=[3, 4, 5], help='Convolution kernel sizes.(default=3,4,5)')
     parser.add_argument('--num_filters', default=128, type=int, help='Number of each convolution kernel.(default=128)')
